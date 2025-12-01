@@ -5,20 +5,36 @@ import java.io.File
 fun main(args: Array<String>) {
 
     if (args.isEmpty()) {
-        println("Usage: ./gradlew run --args=\"puzzle.txt\"")
+        println("Usage: ./run/app/bin/app puzzles/board.txt")
         return
     }
 
-    val rows = File(args[0]).readLines()
-    val sudoku = Sudoku(rows)
+    val file = File(args[0])
 
-    println("\nInput Board:\n")
-    rows.forEach { println(it) }
+    if (!file.exists()) {
+        println("Error: File not found -> ${args[0]}")
+        return
+    }
+
+    val lines = file.readLines()
+    require(lines.size == 9) { "Grid must be 9 rows" }
+
+    // Convert each row to integers
+    val board = Array(9) { r ->
+        val nums = lines[r].trim().split(" ")
+        require(nums.size == 9) { "Each row must contain 9 values" }
+        IntArray(9) { c -> nums[c].toInt() }
+    }
+
+    val sudoku = Sudoku(board)
+
+    println("\nINPUT BOARD:\n")
+    board.forEach { println(it.joinToString(" ")) }
 
     if (sudoku.solve()) {
-        println("\nSolved Board:\n")
+        println("\nSOLVED BOARD:\n")
         sudoku.getBoard().forEach { println(it.joinToString(" ")) }
     } else {
-        println("\nCould not solve puzzle (invalid or too complex).")
+        println("\nNo solution found (invalid or too complex)")
     }
 }
